@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zeka Turnuvası — Canlı Genel Kültür Yarışması</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ======================= GİRİŞ / KAYIT ======================= -->
+  <section id="authScreen" class="screen active">
+    <div class="auth-shell">
+      <div class="auth-brand">
+        <div class="auth-logo">ZT</div>
+        <div>
+          <h1>Zeka Turnuvası</h1>
+          <p>Canlı genel kültür yarışması — 60 saniye, 3 cevap hakkı, ilk bilen +10 puan.</p>
+        </div>
+      </div>
+
+      <div class="auth-card">
+        <div class="tabs">
+          <button id="tabLogin" class="tab active">Giriş Yap</button>
+          <button id="tabRegister" class="tab">Kayıt Ol</button>
+        </div>
+
+        <form id="authForm" autocomplete="off">
+          <label>
+            Kullanıcı Adı
+            <input id="username" type="text" maxlength="20" placeholder="ör. bilge_oyuncu" required />
+          </label>
+          <label>
+            Şifre
+            <input id="password" type="password" maxlength="64" placeholder="••••••••" required />
+          </label>
+          <button type="submit" class="btn primary" id="authSubmit">Giriş Yap</button>
+        </form>
+        <p id="authError" class="error"></p>
+        <p class="forgot-note">Şifreni veya kullanıcı adını mı unuttun? <b>Yöneticiye başvur</b> — yönetici panelinden sıfırlanabilir.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= OYUN ======================= -->
+  <section id="gameScreen" class="screen">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">ZT</span>
+        <span class="brand-name">Zeka Turnuvası</span>
+      </div>
+      <div id="themeBanner" class="theme-pill">
+        <span class="dot"></span> GÜNÜN TEMASI: <b id="themeName">—</b> <span id="themeMul"></span>
+      </div>
+      <div class="userbox">
+        <div class="user-meta">
+          <span id="meName">—</span>
+          <span id="meScore" class="score-chip">0</span>
+        </div>
+        <div class="avatar" id="meAvatar">?</div>
+        <button id="adminBtn" class="icon-btn hidden" title="Yönetim paneli">🛠️</button>
+        <button id="soundToggle" class="icon-btn" title="Ses aç/kapat">🔊</button>
+        <button id="logoutBtn" class="icon-btn" title="Çıkış">⏻</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- SOL: oyun alanı -->
+      <div class="game-area">
+        <!-- LOBI -->
+        <div id="lobbyPanel" class="panel lobby">
+          <div class="lobby-hero">
+            <h2>Turnuvaya hazır mısın?</h2>
+            <p id="lobbyStatus" class="muted">Oyunun başlaması bekleniyor… Bir oyuncu başlattığında herkes aynı anda görür.</p>
+          </div>
+          <div class="lobby-actions">
+            <button id="startBtn" class="btn primary big">▶️ Oyuna Başla</button>
+            <button id="stopBtn" class="btn danger big hidden">⏹️ Oyunu Durdur</button>
+          </div>
+          <div class="lobby-info">
+            <div class="info-chip"><span class="k">Süre</span><b id="cfgSeconds">60</b> sn / soru</div>
+            <div class="info-chip"><span class="k">Tur</span><b id="cfgRound">10</b> soru</div>
+            <div class="info-chip"><span class="k">Hak</span><b id="cfgAttempts">3</b> cevap</div>
+            <div class="info-chip"><span class="k">Puan</span><b id="cfgPoints">10/7/4</b></div>
+            <div class="info-chip"><span class="k">Banka</span><b id="cfgBank">—</b> soru</div>
+          </div>
+        </div>
+
+        <!-- SORU -->
+        <div id="questionPanel" class="panel question-card hidden">
+          <div class="q-meta">
+            <span id="qCounter" class="pill counter">SORU 1/10</span>
+            <span id="qCat" class="pill cat">Genel Kültür</span>
+            <span id="qThemeMul" class="pill theme hidden">🌟 x2 PUAN</span>
+            <span id="qAttempts" class="pill attempts">🎯 3 hakkın var</span>
+          </div>
+
+          <div class="timer-wrap">
+            <div class="timer-track">
+              <div id="timerBar" class="timer-bar"></div>
+            </div>
+            <span id="timerText" class="timer-text">60</span>
+          </div>
+
+          <h2 id="questionText" class="question">Soru yükleniyor…</h2>
+
+          <div id="mask" class="mask-tiles" aria-label="Cevabın görünür hali"></div>
+
+          <form id="answerForm" autocomplete="off" class="answer-row">
+            <input id="answerInput" type="text" placeholder="Cevabını yaz ve Enter'a bas…" maxlength="80" />
+            <button type="submit" class="btn primary">Gönder</button>
+          </form>
+          <p id="answerHint" class="hint"></p>
+        </div>
+
+        <!-- TEASER (sorular arası) -->
+        <div id="teaserPanel" class="panel teaser hidden">
+          <div class="teaser-kicker">SIRADAKİ</div>
+          <div class="teaser-num" id="teaserNum">3. soru</div>
+          <div class="teaser-line" id="teaserLine">Hazırsan geriye yaslan 🍿</div>
+          <div class="teaser-count" id="teaserCount">5</div>
+        </div>
+
+        <!-- TUR SONU -->
+        <div id="roundPanel" class="panel hidden">
+          <h2>🏁 Tur Bitti!</h2>
+          <div id="podium" class="podium"></div>
+          <div class="lobby-actions">
+            <button id="againBtn" class="btn primary big">🔄 Tekrar Oyna</button>
+          </div>
+        </div>
+
+        <!-- SOHBET — soruların altında, akışın içinde -->
+        <div class="panel chat-strip" id="chatStrip">
+          <div class="chat-head">
+            <h3>💬 Sohbet</h3>
+            <button id="chatToggle" class="icon-btn" title="Sohbeti küçült">▾</button>
+          </div>
+          <div id="chatList" class="chat-list"></div>
+          <form id="chatForm" autocomplete="off" class="chat-row">
+            <input id="chatInput" type="text" placeholder="Mesaj yaz…" maxlength="200" />
+            <button type="submit" class="btn">➤</button>
+          </form>
+          <p id="chatHint" class="hint"></p>
+        </div>
+      </div>
+
+      <!-- SAĞ: paneller -->
+      <aside class="side">
+        <div class="panel">
+          <h3>🏆 Tur Sıralaması</h3>
+          <ul id="roundBoard" class="board"><li class="muted">Henüz puan yok</li></ul>
+        </div>
+        <div class="panel">
+          <h3>🌍 Genel Sıralama</h3>
+          <ul id="globalBoard" class="board"><li class="muted">Yükleniyor…</li></ul>
+        </div>
+        <div class="panel">
+          <h3>👥 Çevrimiçi <span id="onlineCount" class="count">0</span></h3>
+          <ul id="onlineList" class="board users"></ul>
+        </div>
+        <div class="panel feed-panel">
+          <h3>🤖 SoruBotu</h3>
+          <div id="feed" class="feed"></div>
+        </div>
+      </aside>
+    </main>
+  </section>
+
+  <!-- TUR SONU MODAL -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-card">
+      <h2 id="modalTitle">🏆 Tur Sonucu</h2>
+      <div id="modalBoard" class="podium"></div>
+      <button id="modalClose" class="btn primary">Kapat</button>
+    </div>
+  </div>
+
+  <!-- YÖNETİM PANELİ -->
+  <div id="adminModal" class="modal hidden">
+    <div class="modal-card wide">
+      <h2>🛠️ Yönetim Paneli</h2>
+
+      <div class="admin-sec">
+        <h3>Üyeler</h3>
+        <div class="admin-search">
+          <input id="adminSearch" type="text" placeholder="Kullanıcı adı ara (kullanıcı adını unutan üye için)…" />
+          <button id="adminSearchBtn" class="btn">Ara</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table" id="adminTable">
+            <thead>
+              <tr><th>Üye</th><th>Puan</th><th>Durum</th><th>İşlemler</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="admin-sec">
+        <h3>🛡️ Moderasyon Kaydı</h3>
+        <div id="modLog" class="feed modlog"><p class="muted">Kayıt yok.</p></div>
+      </div>
+
+      <button id="adminClose" class="btn primary">Kapat</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "soru-yarismasi",
+  "version": "1.0.0",
+  "description": "Gerçek zamanlı, süreli, genel kültür soru-cevap yarışması",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.4"
+  }
+}

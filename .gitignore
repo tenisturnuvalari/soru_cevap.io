@@ -1,0 +1,10 @@
+# Bağımlılıklar
+node_modules/
+
+# Üye verileri ve puan kayıtları (kişisel veri — repoya girmez)
+data/
+
+# Günlükler / geçici dosyalar
+*.log
+*.tmp
+.DS_Store
